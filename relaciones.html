@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Relaciones</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .person-list {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+        .person-card {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+        .person-card:hover {
+            box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.2);
+        }
+        .person-info {
+            flex-grow: 1;
+        }
+        .person-actions button {
+            margin-left: 5px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Gestión de Relaciones</h1>
+    <form id="dniForm">
+        <label for="dni">Selecciona tu DNI:</label>
+        <input type="text" id="dni" name="dni" required>
+        <button type="button" onclick="setDNI()">Seleccionar</button>
+    </form>
+    <div class="person-list" id="personList" style="display: none;">
+        <h2>Lista de Personas</h2>
+        <input type="text" id="search" placeholder="Ingrese nombre o DNI" oninput="searchPeople()">
+        <div id="results">
+            <!-- La lista de personas se mostrará aquí -->
+        </div>
+    </div>
+    <script>
+        let currentDNI = null;
+        let people = [];  // Lista de personas cargadas desde el servidor
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Obtener la lista de todas las personas desde el servidor
+            const response = await fetch('/get_all_people');
+            const data = await response.json();
+            people = data;
+            displayPeople(people);  // Mostrar la lista completa al cargar la página
+        });
+        function setDNI() {
+            const dniInput = document.getElementById('dni').value;
+            if (dniInput.trim() === "") {
+                alert("Por favor, ingresa un DNI válido.");
+                return;
+            }
+            currentDNI = dniInput;
+            document.getElementById('dniForm').style.display = 'none';
+            document.getElementById('personList').style.display = 'block';
+        }
+        function searchPeople() {
+            const query = document.getElementById('search').value.toLowerCase();
+            const results = document.getElementById('results');
+            results.innerHTML = '';  // Limpiar resultados anteriores
+            // Filtrar la lista de personas basándose en la búsqueda
+            const filtered = people.filter(person =>
+                person.Nombre.toLowerCase().includes(query) || person.DNI.includes(query)
+            );
+            displayPeople(filtered);
+        }
+        function displayPeople(peopleList) {
+            const results = document.getElementById('results');
+            results.innerHTML = '';  // Limpiar resultados anteriores
+            peopleList.forEach(person => {
+                const div = document.createElement('div');
+                div.classList.add('person-card');
+                div.innerHTML = `
+                    <div class="person-info">
+                        <strong>${person.Nombre}</strong><br>
+                        DNI: ${person.DNI}
+                    </div>
+                    <div class="person-actions">
+                        <button onclick="addFriend(${person.ID})">Amigo</button>
+                        <button onclick="blockPerson(${person.ID})" style="background-color: red;">Bloquear</button>
+                        <button onclick="clearRelations(${person.ID})" style="background-color: orange;">Limpiar</button>
+                    </div>
+                `;
+                results.appendChild(div);
+            });
+        }
+        function addFriend(id) {
+            if (!currentDNI) {
+                alert("Primero selecciona tu DNI.");
+                return;
+            }
+            alert(`Persona con ID ${id} agregada como amigo por el usuario ${currentDNI}`);
+            // Aquí puedes enviar la petición al servidor con fetch o XMLHttpRequest
+        }
+        function blockPerson(id) {
+            if (!currentDNI) {
+                alert("Primero selecciona tu DNI.");
+                return;
+            }
+            alert(`Persona con ID ${id} bloqueada por el usuario ${currentDNI}`);
+            // Aquí puedes enviar la petición al servidor con fetch o XMLHttpRequest
+        }
+        function clearRelations(id) {
+            if (!currentDNI) {
+                alert("Primero selecciona tu DNI.");
+                return;
+            }
+            fetch('/clear_relations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ person_id: id })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
