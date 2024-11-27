@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Principal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: url('/static/fondo.png') no-repeat center center fixed;
+            background-size: cover;
+            color: white; /* Color de texto blanco para mejor contraste */
+        }
+        h1 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: black;
+        }
+        .button-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Red del Consorcio de Universidades | Amigos UPCH</h1>
+    
+    <!-- Contenedor para los botones -->
+    <div class="button-container">
+        <button onclick="location.href='/eliminar'">Eliminar</button>
+        <button onclick="location.href='/update'">Actualizar</button>
+        <button onclick="location.href='/relaciones'">Relaciones</button>
+        <button onclick="location.href='/grafo'">Grafo</button>
+        <button onclick="location.href='/'">Resultados</button>
+    </div>
+</body>
+</html>
