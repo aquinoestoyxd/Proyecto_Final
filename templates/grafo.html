@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualización del Grafo</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        #grafo {
+            width: 100%;
+            height: 600px;
+            border: 1px solid lightgray;
+        }
+        #info {
+            margin-top: 20px;
+        }
+        .button-container {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Grafo de Universidades, Facultades y Estudiantes</h1>
+    
+    <!-- Botón para regresar a la página principal -->
+    <div class="button-container">
+        <a href="{{ url_for('index') }}">
+            <button>Volver a la Página Principal</button>
+        </a>
+    </div>
+
+    <!-- Contenedor para el grafo -->
+    <div id="grafo"></div>
+
+    <!-- Contenedor para la información del nodo seleccionada -->
+    <div id="info"></div>
+
+    <script type="text/javascript">
+        // Obtener los nodos y relaciones desde el servidor Flask
+        var grafoData = {{ grafo_data | tojson }};
+        
+        // Configuración del grafo de Vis.js
+        var nodes = new vis.DataSet(grafoData.nodes);
+        var edges = new vis.DataSet(grafoData.edges);
+
+        var container = document.getElementById('grafo');
+        
+        var data = {
+            nodes: nodes,
+            edges: edges
+        };
+
+        var options = {
+            nodes: {
+                shape: 'dot',
+                size: 15,
+                font: { size: 14, face: 'arial' },
+                color: {
+                    background: '#97C2FC',
+                    border: '#2B7CE9',
+                    highlight: {
+                        background: '#D2E5FF',
+                        border: '#2B7CE9'
+                    }
+                }
+            },
+            edges: {
+                width: 2,
+                color: { inherit: true },
+                arrows: { to: { enabled: true, scaleFactor: 0.5 } }
+            },
+            physics: {
+                enabled: true
+            }
+        };
+
+        var network = new vis.Network(container, data, options);
+
+        // Evento para seleccionar un nodo
+        network.on("selectNode", function (params) {
+            var selectedNode = nodes.get(params.nodes[0]); // Obtener el nodo seleccionado
+            // Mostrar las propiedades del nodo en la parte inferior
+            var info = "<strong>Nodo seleccionado:</strong><br>" + selectedNode.label + "<br><pre>" + JSON.stringify(selectedNode.properties, null, 2) + "</pre>";
+            document.getElementById('info').innerHTML = info;
+        });
+
+        // Evento para seleccionar una relación
+        network.on("selectEdge", function (params) {
+            var selectedEdge = edges.get(params.edges[0]); // Obtener la relación seleccionada
+            // Mostrar las propiedades de la relación en un alert
+            alert("Relación seleccionada: " + selectedEdge.label + "\nPropiedades: " + JSON.stringify(selectedEdge.properties, null, 2));
+        });
+    </script>
+</body>
+</html>
